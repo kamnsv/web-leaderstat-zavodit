@@ -1,0 +1,49 @@
+html, body{
+      	margin: 0;
+        overflow: hidden;
+		font-family: FontAwesome;
+		background: ghostwhite
+      }
+
+.app {
+	
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	background: ghostwhite;
+}
+
+.app__body{
+	
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 500px;
+}
+
+.show-add-form{
+	max-width: 300px;
+}
+
+.dd {
+  width: 29em;
+  padding: 15px;
+  border: 1px solid #333;
+  background: rgba(0,0,0,0.7);
+}
+
+.dd.disabled{
+	background: #ddd;
+}
+
+.dd__zone {
+  border: 2px dashed #bbb;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 50px;
+  text-align: center;
+  font: 21pt bold arial;
+  color: #bbb;
+}

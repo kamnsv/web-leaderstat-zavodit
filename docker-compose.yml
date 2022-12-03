@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+    zavodit:
+        build: .
+        env_file:
+        - .env
+        ports:
+        - "8000:8000"
+        volumes:
+        - .\src:/app
+        entrypoint: ["uvicorn","app:app","--host","0.0.0.0"]
+
