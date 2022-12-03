@@ -11,6 +11,7 @@
 	<script src="vue/dd-zone.js"></script>
 	<script src="vue/imgs.js"></script>
 	<script src="vue/add.js"></script>
+	<script src="vue/pred.js"></script>
 	<script src="vue/classes.js"></script>
     <title>LeaderStat ZavodIT</title>
   </head>
@@ -20,8 +21,11 @@
 			
 		<div class="app__body">	
 			<h2>Текущие классы в модели</h2>
+			<div class="d-flex m-2 w-100 justify-content-evenly">
+				<add-class :classes="classes" @update="add_class"></add-class>
+				<predict-box @pred="predict"></predict-box>
+			</div>
 			<classes-box :classes="classes"></classes-box>
-			<add-class :classes="classes"></add-class>
 		</div>
 		
 	</div>

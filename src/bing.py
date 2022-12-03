@@ -11,7 +11,6 @@ def set_routes(app):
         result = await get_classes()
         return result
     
-    
     @app.post("/put")
     async def put_file(name: str = Form(...), data: UploadFile = File(...)):
 

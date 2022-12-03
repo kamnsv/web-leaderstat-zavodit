@@ -47,3 +47,48 @@ html, body{
   font: 21pt bold arial;
   color: #bbb;
 }
+
+
+.classes {
+	height: 800px;
+}
+
+.classes,
+.imgs {
+	overflow-x: scroll;
+}
+.classes::-webkit-scrollbar{
+	height: 1px !important;
+}
+.imgs::-webkit-scrollbar {
+    height: 4px !important;
+  }	
+  
+.classes::-webkit-scrollbar-thumb,
+.imgs::-webkit-scrollbar-thumb  {
+    background-color: #E0E0E0;
+  }
+  
+
+
+
+.imgs__lst {
+	display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    justify-content: space-around;
+	
+}
+
+.imgs__it img{
+	height: 150px;
+    width: 150px;
+    object-fit: cover;
+}
+
+.classes__name{
+	text-transform: capitalize;
+}
+

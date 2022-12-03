@@ -14,10 +14,25 @@ var root = {
 	},//computed
 	
 	methods: {
-		add_class(){
-			alert('')
+		add_class(name, epoch, count, batch, lr){
+			
+				data = {
+					name: name,
+					batch: batch,
+					epoch: epoch,
+					lr: lr, 
+					imgs: [], 
+					coef: 1,  
+					load: count === false? 0 : count,  
+				}
+				if (null == this.ws)
+					this.ini_ws();
+				this.ws.send(JSON.stringify(data));
+
+			
 		},//add_class
 		
+
 	    load_classes(){
 		  
 			(async () => {
@@ -33,19 +48,43 @@ var root = {
 				}
 			})();
 		
-	  },//load_classes
-		
+		},//load_classes
+			
+	  	ini_ws(){
+			let url = `ws://${location.hostname}:${location.port}/ws`;
+			this.ws = new WebSocket(url);
+			this.ws.onopen = (e) => 
+			{
+				console.log('ws open');
+			}
+				
+			this.ws.onclose = (e) => 
+			{
+				this.ws = null;
+			}
+			this.ws.onmessage = (e) =>
+			{
+				console.log(e.data);
+			}
+			this.ws.onerror = (e) =>
+			{
+				console.log(e);
+				this.ws.close();
+			}
+		},//ini_ws
 
 	},//methods
 		
 	mounted() {
 		this.load_classes();
+		this.ini_ws();
 		
 	},//mounted
 	
 	components: {
 		'classes-box': Classes,
-		'add-class': AddClass
+		'add-class': AddClass,
+		'predict-box': Predict
 	},//components
 	
 }//root

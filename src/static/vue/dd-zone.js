@@ -13,12 +13,6 @@ var DDZone = {
 	},//data
 	
 	computed: {
-			valid(){
-
-				if (this.name == '') return false;
-				if (this.classes.has(this.name)) return false;
-				return true;
-			},
 			
 			progress(){
 				return 100*this.vprog;
@@ -34,7 +28,6 @@ var DDZone = {
 		
 		drop(ev){
 			ev.preventDefault();
-			if (!this.valid) return;
 			if (undefined == ev.dataTransfer) return;
 			const typeit =  ev.dataTransfer.items ? true : false;  
 			const files = typeit ? ev.dataTransfer.items : ev.dataTransfer.files;  
@@ -47,15 +40,11 @@ var DDZone = {
 					this.arr.push(files[i]);                             		
 				}
 			}
+			this.$emit('loads');
 
 		},//drop
 		
 		load_files(ev){
-			
-			if (!this.valid) {
-				ev.preventDefault();
-				return;
-			}
 			
 			ev.target.disabled = true;
 			
@@ -63,14 +52,13 @@ var DDZone = {
 			this.count = ev.target.files.length;
 			for (file of ev.target.files)
 				this.arr.push(file);      
-	    
+			this.$emit('loads');
 			ev.target.disabled = false;	
 			ev.target.value = null;
 		},//load_files
 		
 	
 		upload_file(file){
-			if (!this.valid) return;
 
 			new Promise((resolve, reject) => {
 				let filename = file.name;
@@ -138,13 +126,12 @@ var DDZone = {
 		},//upload_file
 		
 		open_upload(){
-			if (this.valid)
-				this.$refs.fileInput.click()
+			this.$refs.fileInput.click()
 		},//open_upload
 		
 		
 		start_uload(){
-			
+			console.log(this.arr);
 			for (var i = 0; i < this.arr.length; i++)                                 
 				this.upload_file(this.arr[i]);
 			
@@ -152,7 +139,7 @@ var DDZone = {
 		
 	},//methods
 	
-    template:   `<div :class="'dd ' + (valid ? '': 'disabled')">
+    template:   `<div class="dd">
 					<div class="dd__zone"
 					@dragover="dragover($event)"
 					@drop="drop($event)"
@@ -165,7 +152,7 @@ var DDZone = {
 						<div class="progress-bar" role="progressbar" :style="'width:' + progress +'%'" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100"></div>
 					</div>
 					
-					<input class="d-none" type="file" required="" multiple="" accept="image/jpeg,image/png,image/gif"
+					<input class="d-none" type="file" multiple="" accept="image/jpeg,image/png,image/gif"
 					@change="load_files($event)" ref="fileInput"
 					/>
 					
