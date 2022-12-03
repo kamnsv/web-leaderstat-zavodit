@@ -8,6 +8,6 @@ services:
         ports:
         - "8000:8000"
         volumes:
-        - .\src:/app
+        - .\app:/app
         entrypoint: ["uvicorn","app:app","--host","0.0.0.0","--ws-ping-interval","300","--ws-ping-timeout","300"]
 
