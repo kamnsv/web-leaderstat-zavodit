@@ -1,4 +1,5 @@
 app/static/dataset/
+app/static/temp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

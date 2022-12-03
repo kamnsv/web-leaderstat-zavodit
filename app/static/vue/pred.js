@@ -20,7 +20,14 @@ var Predict = {
 				
 		close(){
 			this.show = false;
-		},//
+		},//close
+		
+		
+		clear(){
+			this.$emit('clear');
+			this.$refs.ddz.count = 0;
+		},//clear
+		
 		
 		load_files(){
 			this.predicting = true;
@@ -63,6 +70,7 @@ var Predict = {
 					</div>
 					
 					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-primary" @click="clear()" v-if="result.length">Очистить</button>
 						<button type="button" class="btn btn-primary" @click="close()" v-if="result.length">Закрыть</button>
 					</div>
 

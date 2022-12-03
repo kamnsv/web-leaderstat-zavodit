@@ -23,7 +23,7 @@
 			<h2>Текущие классы в модели</h2>
 			<div class="d-flex m-2 w-100 justify-content-evenly">
 				<add-class :classes="classes" @update="add_class"></add-class>
-				<predict-box @pred="predict" :result="result" ref="predbox"></predict-box>
+				<predict-box @pred="predict" :result="result" @clear="result=[]" ref="predbox"></predict-box>
 			</div>
 			<classes-box :classes="classes"></classes-box>
 		</div>
