@@ -21,14 +21,26 @@
 			
 		<div class="app__body">	
 			<h2>Текущие классы в модели</h2>
+			
+			
+			<div class="alert alert-primary m-2" v-if="status">{{status}}</div>
+
 			<div class="d-flex m-2 w-100 justify-content-evenly">
 				<add-class :classes="classes" @update="add_class"></add-class>
 				<predict-box @pred="predict" :result="result" @clear="result=[]" ref="predbox"></predict-box>
 			</div>
 			<classes-box :classes="classes"></classes-box>
+			
+			
+
+
 		</div>
 		
 	</div>
+	
+	
+
+
 	
   </body>
 

@@ -34,38 +34,16 @@ from sklearn.metrics.pairwise import paired_manhattan_distances
 from sklearn.metrics import r2_score,mean_absolute_error,mean_squared_error,roc_auc_score,accuracy_score,f1_score,classification_report,recall_score,make_scorer
 from sklearn.multioutput import MultiOutputClassifier
 import tensorflow as tf
-from joblib import dump, load
+#from joblib import dump, load
 import shutil
 
 # Блок, который определяет, где стартует файл (колаб, мой ноут или моя рабочая станция), и прописывает пути
+CrPath ='data/'
 
 '''
-Colab = True
-try:
-    from google.colab import drive
-except:
-    Colab = False
+    Фронтэнд кидает все картинки в папку Train (или, если того потребует библиотека Дмитрия, в какую-то вообще другую),
+        с разбивкой по классам.
 
-
-if Colab:
-    CrPath = "/content/drive/MyDrive/ResNet/"
-
-    from google.colab import drive
-
-    # Подключаем Google drive
-    drive.mount('/content/drive')
-
-else:
-    Acer = not os.path.exists("E:/ResNet/Keras/")
-    CrPath = "C:/w/ResNet/Keras/" if Acer else "E:/ResNet/Keras/"
-'''
-
-CrPath = "app/data/"
-
-'''
-    Фронтэнд кидает все картинки в папку Train (или, если того потребует библиотека Дмитрия, в какую-то вообще другую), 
-        с разбивкой по классам. 
-         
 '''
 
 
@@ -114,10 +92,10 @@ def FullPredictNet(Weights):
     return FinalModel
 
 '''
-    
-    С помощью ResNet без декодера создаем свернутые обраps входных данных. Учить будем уже на них. 
-    
-    Вернет словарь, содержащий имена классов и массивы с результатами свертки картинок. 
+
+    С помощью ResNet без декодера создаем свернутые обраps входных данных. Учить будем уже на них.
+
+    Вернет словарь, содержащий имена классов и массивы с результатами свертки картинок.
 '''
 
 def Callback(MustDone, Ready, TimePassed, TimeNeed):
@@ -126,10 +104,10 @@ def Callback(MustDone, Ready, TimePassed, TimeNeed):
 def CallBackFitReady(ClassList):
     pass
 
-def Fit(DataPath, BatchSz, Au = 1):
+def Fit(DataPath, BatchSz=32, Au = 1):
     global ClassList, LastX, LastY
 
-
+    
     StartClassList = len(ClassList)
 
     Classes, DelList = PrepareInput(DataPath, BatchSz, Au)
@@ -151,39 +129,44 @@ def Fit(DataPath, BatchSz, Au = 1):
 
     XX = np.concatenate(XList)
     y = np.concatenate(YList)
-    SVMM.fit(XX, tf.one_hot(y, depth=len(ClassList)).numpy())
-
-    dump(SVMM, CrPath + 'SVMM.jolib')
+    print('SVMM fit', len(y))
+    SVMM.fit(XX, y)
+    print('SVMM fit end')
+    #dump(SVMM, CrPath + 'SVMM.jolib')
     SaveClasses(CrPath + 'Classes.lst')
 
     np.save(CrPath + 'X.npy', XX)
     np.save(CrPath + 'Y.npy', y)
 
     for Dir in Classes:
-        shutil.rmtree(CrPath + 'Train/' + Dir)
+        shutil.rmtree(DataPath + 'Train/' + Dir)
 
     CallBackFitReady(ClassList)
 
     return
 
 def PrepareTest(Path):
-    model = ResNet50(weights='imagenet', include_top=False)
+    resnet = tf.keras.applications.resnet50.ResNet50(
+        include_top=True,
+        weights='imagenet',
+        input_tensor=None,
+        input_shape=(224, 224, 3),
+        pooling=None,
+        classes=1000)
 
-    PredModel = Sequential([
-        Input(shape=[224, 224, 3]),
-        model,
-        GlobalAveragePooling2D()
-    ])
-
-    PredModel.compile()
-
-    image = cv2.imread(Path, cv2.IMREAD_COLOR)
+    model = tf.keras.Model(inputs=resnet.input, outputs=[resnet.layers[176].output, resnet.layers[175].output])
+    optimizer = tf.keras.optimizers.Adamax(learning_rate=0.001)
+    model.compile(optimizer=tf.keras.optimizers.Adamax(learning_rate=0.001))
+    with  open(Path, 'rb') as stream:
+        bytes = bytearray(stream.read())
+    array = np.asarray(bytes, dtype=np.uint8)
+    image = cv2.imdecode(array, cv2.IMREAD_COLOR)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
 
     image = preprocess_input(image)
 
-    Res = PredModel.predict(np.expand_dims(image, axis=0), verbose=False)
+    Res = model(np.expand_dims(image, axis=0))[1].numpy()
 
     return Res
 
@@ -199,22 +182,24 @@ def PrepareInput(DataPath, BatchSz, Au = 1):
     TrainFiles = 0
     Classes = {}
 
-    model = ResNet50(weights='imagenet', include_top=False)
+    resnet = tf.keras.applications.resnet50.ResNet50(
+        include_top=True,
+        weights='imagenet',
+        input_tensor=None,
+        input_shape=(224, 224, 3),
+        pooling=None,
+        classes=1000)
 
-    PredModel = Sequential([
-        Input(shape=[224, 224, 3]),
-        model,
-        GlobalAveragePooling2D()
-    ])
-
-    PredModel.compile()
+    model = tf.keras.Model(inputs=resnet.input, outputs=[resnet.layers[176].output, resnet.layers[175].output])
+    optimizer = tf.keras.optimizers.Adamax(learning_rate=0.001)
+    model.compile(optimizer=tf.keras.optimizers.Adamax(learning_rate=0.001))
 
     MustDone, Ready, TimePassed, TimeNeed = 0, 0, 0, 0
 
     DelList = []
 
     for Folder in Trains: # формируем результат по классам
-        list = glob.glob(DataPath + 'Train/' + Folder + '/*.jpg')
+        list = glob.glob(DataPath + 'Train\\' + Folder + '\\*.jpg')
 
         DelList.extend(list)
 
@@ -227,7 +212,11 @@ def PrepareInput(DataPath, BatchSz, Au = 1):
         BatchPos = 0
 
         for i, File in enumerate(list):
-            image = cv2.imread(File, cv2.IMREAD_COLOR)
+
+            with  open(File, 'rb') as stream:
+                bytes = bytearray(stream.read())
+            array = np.asarray(bytes, dtype=np.uint8)
+            image = cv2.imdecode(array, cv2.IMREAD_COLOR)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             image = cv2.resize(image, (224, 224), interpolation = cv2.INTER_AREA)
 
@@ -237,7 +226,7 @@ def PrepareInput(DataPath, BatchSz, Au = 1):
 
             if BatchPos == BatchSz: # Набираем батч. Потом его скопом прогоняем через ResNet
 
-                TrainConvX[Pos:Pos + BatchSz] = PredModel.predict(Batch, verbose = False)
+                TrainConvX[Pos:Pos + BatchSz] = model(Batch)[1].numpy()
 
                 Pos += BatchSz
                 BatchPos = 0
@@ -247,7 +236,7 @@ def PrepareInput(DataPath, BatchSz, Au = 1):
                 gc.collect()
 
         if BatchPos > 0: # если количество файлов не делится на BatchSz, дочитываем остаток
-            TrainConvX[Pos:] = PredModel.predict(Batch[:BatchPos], verbose=False)
+            TrainConvX[Pos:Pos + BatchPos] = model(Batch[:BatchPos])[1].numpy()
 
         # теперь аугментация добавлением шума, если Au > 1
         AuPos = TrainFiles
@@ -262,11 +251,15 @@ def PrepareInput(DataPath, BatchSz, Au = 1):
 
     return Classes, DelList
 
-def Predict(TestDataPath, BatchSz=32, Au = 10):
+def Predict(TestDataPath, BatchSz = 32, Au = 10):
     XX = PrepareTest(TestDataPath)
 
-    Res = np.array(ClassList)[SVMM.predict(XX)[0]==1].tolist()
+    #Res = np.array(ClassList)[SVMM.predict(XX)[0]==1].tolist()
 
+    Proba = SVMM.predict_proba(XX)
+    Res = np.array(ClassList)[np.ravel(Proba) > len(ClassList) * 0.016].tolist()
+
+    #SVMM.predict_proba(XX)
     return Res
 
 def SaveClasses(Path):
@@ -285,28 +278,29 @@ def LoadClasses(Path):
 
 
 def LoadMVC(Path = CrPath + 'SVMM.jolib'):
-    if os.path.isfile(Path):
-        return load(Path)
-    else:
-        return MultiOutputClassifier(LinearSVC(C=0.001, class_weight='balanced'))
+    #if os.path.isfile(Path):
+    #    return load(Path)
+    #else:
+        print('RandomForestClassifier') 
+        Frst = RandomForestClassifier(random_state=16, n_estimators=120, verbose=1, n_jobs=-1)
+        print('RandomForestClassifier', Frst) 
+        #R = Frst.fit(X_train, y_train)
+        #return MultiOutputClassifier(LinearSVC(C=0.001, class_weight='balanced'))
+        return Frst
 
 ClassList = LoadClasses(CrPath + 'Classes.lst')
 
+SVMM = LoadMVC()
 if os.path.isfile(CrPath + 'X.npy'):
+    print('SVMM fit') 
     LastX = np.load(CrPath + 'X.npy')
     LastY = np.load(CrPath + 'Y.npy')
+    print('SVMM fit start') 
+    SVMM.fit(LastX, LastY)
+    print('SVMM fit end')
 else:
     LastX = None
     LastY = None
 
-SVMM = LoadMVC() #MultiOutputClassifier(LinearSVC(C=0.001, class_weight='balanced'))#LoadMVC()
-if __name__ == "__main__":
 
-    Fit(CrPath, 4, 2)
-
-    Predict(CrPath + 'Test/Test.jpg', 4, Au = 10)
-
-
-
-a = 0
 

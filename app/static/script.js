@@ -5,7 +5,8 @@ var root = {
 	return {
 			classes: [],
 			flash:[],
-			result:[]
+			result:[],
+			status: ''
 		}		
 	},//data
 	
@@ -34,16 +35,14 @@ var root = {
 		},//send_ws
 		
 		
-		add_class(name, epoch, count, batch, lr){
+		add_class(name, coef, count, batch){
 			
 				data = {
 					action: 'fit',
 					name: name,
 					batch: batch,
-					epoch: epoch,
-					lr: lr, 
 					imgs: [], 
-					coef: 1,  
+					coef: coef,  
 					load: count === false? 0 : count,  
 				}
 				this.send_ws(data);
@@ -115,7 +114,24 @@ var root = {
 				if (data.count == data.predicted)
 					this.$refs.predbox.predicting = false;
 			}
-		},//predict
+		},//predict_handler
+		
+		
+		fit_handler(raw){
+			let data = JSON.parse(raw);
+			if ('start' == data.status)
+				this.status = 'Старт начала дообучения...'
+			if ('end' == data.status)
+				this.status = 'Процес дообучения...'
+			if ('progress' == data.status){
+				this.load_classes();
+				this.status = '';
+				this.ini_ws();
+			}
+			else console.log(data);
+			
+			
+		},//fit_handler
 		
 	},//methods
 		

@@ -23,8 +23,8 @@ def set_routes(app):
     
     @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket):
-        await websocket.accept()
-        try:
+            await websocket.accept()
+        #try:
             while True:
                 data = await websocket.receive_json()
                 if 'fit' == data['action']:
@@ -33,8 +33,8 @@ def set_routes(app):
                     await predict_img(data, websocket)
                 else:
                     await websocket.send_json({'action': data['action'], 'error': 'unknown'})
-        except Exception as e:
-            print("Client disconnected", e)
+        #except Exception as e:
+         #   print("Client disconnected", e)
         
        
     
