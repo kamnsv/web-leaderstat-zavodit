@@ -1,6 +1,6 @@
-data/
-app/static/temp/
-app/static/dataset/
+data
+app/static/temp
+app/static/dataset
 app/static/Train
 
 # Byte-compiled / optimized / DLL files

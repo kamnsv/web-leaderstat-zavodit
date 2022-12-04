@@ -26,3 +26,12 @@ six==1.16.0
 uvicorn==0.20.0
 bing-image-downloader==1.1.2
 icrawler
+scikit-image==0.19.3
+scikit-learn==1.1.2
+scikit-posthocs==0.7.0
+sklearn
+tensorboard==2.8.0
+tensorboard-data-server==0.6.1
+tensorboard-plugin-wit==1.8.1
+tensorflow-io-gcs-filesystem==0.24.0
+tensorflow-gpu=2.8.0

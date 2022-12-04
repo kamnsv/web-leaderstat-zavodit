@@ -120,10 +120,10 @@ var root = {
 		fit_handler(raw){
 			let data = JSON.parse(raw);
 			if ('start' == data.status)
-				this.status = 'Старт начала дообучения...'
-			if ('end' == data.status)
-				this.status = 'Процес дообучения...'
-			if ('progress' == data.status){
+				this.status = 'Обучение...'
+			//if ('end' == data.status)
+			//	this.status = 'Процес дообучения...'
+			if ('end' == data.status){
 				this.load_classes();
 				this.status = '';
 				this.ini_ws();
